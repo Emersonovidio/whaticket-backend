@@ -1,4 +1,7 @@
 import { randomUUID } from "crypto";
+import { Op } from "sequelize/types";
+import Contact from "../../models/Contact";
+import Ticket from "../../models/Ticket";
 import CreateMessageService from "../MessageServices/CreateMessageService";
 
 /* eslint-disable camelcase */
@@ -48,21 +51,33 @@ export const ReceiveEventService = async (
 ): Promise<unknown> => {
   console.log(body.entry[0].changes[0].value.messages[0]);
 
-  const messageReceived = body.entry[0].changes[0].value.messages[0];
+  const { from, text, type } = body.entry[0].changes[0].value.messages[0];
 
-  const messageData = {
-    id: randomUUID(),
-    ack: 1,
-    ticketId: 1,
-    body: messageReceived.text.body,
-    fromMe: false,
-    read: true,
-    mediaType: messageReceived.type === "text" ? "chat" : messageReceived.type,
-    quotedMsgId: null
-  };
+  const contact = await Contact.findOne({
+    where: { number: from }
+  });
 
-  // await ticket.update({ lastMessage: body });
-  return CreateMessageService({ messageData });
+  if (contact) {
+    const ticket = await Ticket.findOne({
+      where: { contactId: contact.id }
+    });
+
+    if (ticket) {
+      const messageData = {
+        id: randomUUID(),
+        ack: 1,
+        ticketId: ticket.id,
+        body: text.body,
+        fromMe: false,
+        read: true,
+        mediaType: type === "text" ? "chat" : type,
+        quotedMsgId: null
+      };
+
+      await ticket.update({ lastMessage: text.body });
+      return CreateMessageService({ messageData });
+    }
+  }
 };
 
 export default ReceiveEventService;
