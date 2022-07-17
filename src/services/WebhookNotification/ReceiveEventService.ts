@@ -76,7 +76,8 @@ export const ReceiveEventService = async (
 
       const ticketUpdate = {
         lastMessage: text.body,
-        unreadMessages: ticket.status === "pending" ? 1 : 0
+        unreadMessages:
+          ticket.status === "pending" ? ticket.unreadMessages + 1 : 0
       };
 
       await ticket.update(ticketUpdate);
