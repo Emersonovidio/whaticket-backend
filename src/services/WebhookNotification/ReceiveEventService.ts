@@ -74,7 +74,12 @@ export const ReceiveEventService = async (
         quotedMsgId: null
       };
 
-      await ticket.update({ lastMessage: text.body });
+      const ticketUpdate = {
+        lastMessage: text.body,
+        unreadMessages: ticket.status === "pending" ? 1 : 0
+      };
+
+      await ticket.update(ticketUpdate);
       return CreateMessageService({ messageData });
     }
   }
