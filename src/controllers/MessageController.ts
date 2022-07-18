@@ -51,8 +51,12 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
         await SendWhatsAppMedia2({ media, ticket });
       })
     );
-  } else if (body === "*Administrador:*iniciar_conversa") {
-    await SendWhatsAppMessageTemplate({ body, ticket, quotedMsg });
+  } else if (body.split("/")[1] === "iniciar_conversa") {
+    await SendWhatsAppMessageTemplate({
+      body: body.split("/")[1],
+      ticket,
+      quotedMsg
+    });
   } else {
     await SendWhatsAppMessage2({ body, ticket, quotedMsg });
   }
