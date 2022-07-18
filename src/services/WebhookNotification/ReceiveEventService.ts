@@ -5,29 +5,25 @@ import CreateMessageService from "../MessageServices/CreateMessageService";
 
 /* eslint-disable camelcase */
 type WebhookNotification = {
-  contacts: [
-    {
-      profile: {
-        name: string;
-      };
-      wa_id: number;
-    }
-  ];
-  messages: [
-    {
-      from: number;
-      id: string;
-      timestamp: Date;
-      text?: {
-        body: string;
-      };
-      type: string;
-      button?: {
-        payload: string;
-        text: string;
-      };
-    }
-  ];
+  contacts: {
+    profile: {
+      name: string;
+    };
+    wa_id: number;
+  };
+  messages: {
+    from: number;
+    id: string;
+    timestamp: Date;
+    text?: {
+      body: string;
+    };
+    type: string;
+    button?: {
+      payload: string;
+      text: string;
+    };
+  };
 };
 
 export const ReceiveEventService = async (
@@ -35,7 +31,7 @@ export const ReceiveEventService = async (
 ): Promise<unknown> => {
   console.log(body.messages);
 
-  const { from, type, text, button } = body.messages[0];
+  const { from, type, text, button } = body.messages;
 
   const contact = await Contact.findOne({
     where: { number: from }
