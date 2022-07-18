@@ -3,6 +3,7 @@ import AppError from "../../errors/AppError";
 import Contact from "../../models/Contact";
 import Ticket from "../../models/Ticket";
 import CreateMessageService from "../MessageServices/CreateMessageService";
+import CreateTicketService from "../TicketServices/CreateTicketService";
 
 /* eslint-disable camelcase */
 type WebhookNotification = {
@@ -87,12 +88,22 @@ export const ReceiveEventService = async (
     throw new AppError("ERR_404_CONTACT_NOT_FOUND");
   }
 
-  const ticket = await Ticket.findOne({
+  let ticket: Ticket | null;
+
+  ticket = await Ticket.findOne({
     where: { contactId: contact.id }
   });
 
   if (!ticket) {
     throw new AppError("ERR_404_TICKET_NOT_FOUND");
+  }
+
+  if (ticket.status === "closed") {
+    ticket = await CreateTicketService({
+      contactId: contact.id,
+      status: "peding",
+      userId: 1
+    });
   }
 
   let messageData: MessageData;
