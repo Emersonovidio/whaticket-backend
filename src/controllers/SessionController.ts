@@ -26,6 +26,7 @@ export const update = async (
   res: Response
 ): Promise<Response> => {
   const token: string = req.cookies.jrt;
+  console.log(token);
 
   if (!token) {
     throw new AppError("ERR_SESSION_EXPIRED", 401);
