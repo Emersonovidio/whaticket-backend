@@ -72,7 +72,7 @@ export const ReceiveEventService = async (
 ): Promise<unknown> => {
   console.log(body.entry[0].changes[0].value.messages[0]);
 
-  const { from, text, type, button } =
+  const { from, type, text, button } =
     body.entry[0].changes[0].value.messages[0];
 
   const contact = await Contact.findOne({
@@ -84,10 +84,10 @@ export const ReceiveEventService = async (
       where: { contactId: contact.id }
     });
 
-    let ticketUpdate;
-    let messageData;
-
     if (ticket) {
+      let ticketUpdate;
+      let messageData;
+
       if (text) {
         messageData = {
           id: randomUUID(),
@@ -104,9 +104,12 @@ export const ReceiveEventService = async (
           unreadMessages:
             ticket.status === "pending" ? ticket.unreadMessages + 1 : 0
         };
+
+        await ticket.update(ticketUpdate);
+        return CreateMessageService({ messageData });
       }
 
-      if (ticket && button) {
+      if (button) {
         messageData = {
           id: randomUUID(),
           ack: 1,
@@ -114,7 +117,7 @@ export const ReceiveEventService = async (
           body: button.text,
           fromMe: false,
           read: true,
-          mediaType: type === "text" ? "chat" : type
+          mediaType: type
         };
 
         ticketUpdate = {
