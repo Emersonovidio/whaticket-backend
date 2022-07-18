@@ -102,7 +102,9 @@ export const ReceiveEventService = async (
         ticketUpdate = {
           lastMessage: text.body,
           unreadMessages:
-            ticket.status === "pending" ? ticket.unreadMessages + 1 : 0
+            ticket.status === "pending" || ticket.status === "closed"
+              ? ticket.unreadMessages + 1
+              : 0
         };
 
         await ticket.update(ticketUpdate);
@@ -123,7 +125,9 @@ export const ReceiveEventService = async (
         ticketUpdate = {
           lastMessage: button.text,
           unreadMessages:
-            ticket.status === "pending" ? ticket.unreadMessages + 1 : 0
+            ticket.status === "pending" || ticket.status === "closed"
+              ? ticket.unreadMessages + 1
+              : 0
         };
 
         await ticket.update(ticketUpdate);
