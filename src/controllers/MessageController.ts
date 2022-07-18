@@ -5,8 +5,8 @@ import Message from "../models/Message";
 import SetTicketMessagesAsRead from "../helpers/SetTicketMessagesAsRead";
 
 import ShowTicketService from "../services/TicketServices/ShowTicketService";
-import SendWhatsAppMedia2 from "../services/WbotServices/SendWhatsAppMedia2";
-import SendWhatsAppMessage2 from "../services/WbotServices/SendWhatsAppMessage2";
+import SendWhatsAppMedia from "../services/WbotServices/SendWhatsAppMedia";
+import SendWhatsAppMessage from "../services/WbotServices/SendWhatsAppMessage";
 import ListMessagesService from "../services/MessageServices/ListMessagesService";
 import DeleteWhatsAppMessage from "../services/WbotServices/DeleteWhatsAppMessage";
 import SendWhatsAppMessageTemplate from "../services/WbotServices/SendWhatsAppMessageTemplate";
@@ -42,23 +42,24 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   const medias = req.files as Express.Multer.File[];
 
   const ticket = await ShowTicketService(ticketId);
+  const bodySplit = body.split("/");
 
   SetTicketMessagesAsRead(ticket);
 
   if (medias) {
     await Promise.all(
       medias.map(async (media: Express.Multer.File) => {
-        await SendWhatsAppMedia2({ media, ticket });
+        await SendWhatsAppMedia({ media, ticket });
       })
     );
-  } else if (body.split("/")[1] && !body.split("/")[2]) {
+  } else if (bodySplit[1] && !bodySplit[2]) {
     await SendWhatsAppMessageTemplate({
-      body: body.split("/")[1],
+      body: bodySplit[1],
       ticket,
       quotedMsg
     });
   } else {
-    await SendWhatsAppMessage2({ body, ticket, quotedMsg });
+    await SendWhatsAppMessage({ body, ticket, quotedMsg });
   }
 
   return res.send();

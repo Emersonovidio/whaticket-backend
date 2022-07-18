@@ -1,12 +1,9 @@
-import { Message as WbotMessage } from "whatsapp-web.js";
-import AppError from "../../errors/AppError";
-import GetTicketWbot from "../../helpers/GetTicketWbot";
-import GetWbotMessage from "../../helpers/GetWbotMessage";
-import SerializeWbotMsgId from "../../helpers/SerializeWbotMsgId";
-import Message from "../../models/Message";
+import axios from "axios";
+import { randomUUID } from "crypto";
 import Ticket from "../../models/Ticket";
-
-import formatBody from "../../helpers/Mustache";
+import Message from "../../models/Message";
+import AppError from "../../errors/AppError";
+import CreateMessageService from "../MessageServices/CreateMessageService";
 
 interface Request {
   body: string;
@@ -16,29 +13,39 @@ interface Request {
 
 const SendWhatsAppMessage = async ({
   body,
-  ticket,
-  quotedMsg
-}: Request): Promise<WbotMessage> => {
-  let quotedMsgSerializedId: string | undefined;
-  if (quotedMsg) {
-    await GetWbotMessage(ticket, quotedMsg.id);
-    quotedMsgSerializedId = SerializeWbotMsgId(ticket, quotedMsg);
-  }
-
-  const wbot = await GetTicketWbot(ticket);
-
+  ticket
+}: Request): Promise<Message> => {
   try {
-    const sentMessage = await wbot.sendMessage(
-      `${ticket.contact.number}@${ticket.isGroup ? "g" : "c"}.us`,
-      formatBody(body, ticket.contact),
+    const sentMessage = await axios.post(
+      `${process.env.WHATSAPP_API_URI}/messages`,
       {
-        quotedMessageId: quotedMsgSerializedId,
-        linkPreview: false
+        messaging_product: "whatsapp",
+        to: ticket.contact.number,
+        type: "text",
+        text: {
+          body
+        }
+      },
+      {
+        headers: {
+          Authorization: String(process.env.ACCESS_TOKEN_FACEBOOK)
+        }
       }
     );
 
+    const messageData = {
+      id: randomUUID(),
+      ack: sentMessage.status === 200 ? 1 : 0,
+      ticketId: ticket.id,
+      body,
+      fromMe: true,
+      read: true,
+      mediaType: "chat",
+      quotedMsgId: null
+    };
+
     await ticket.update({ lastMessage: body });
-    return sentMessage;
+    return await CreateMessageService({ messageData });
   } catch (err) {
     throw new AppError("ERR_SENDING_WAPP_MSG");
   }
