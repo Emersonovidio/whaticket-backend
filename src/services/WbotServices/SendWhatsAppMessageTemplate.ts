@@ -41,7 +41,7 @@ const SendWhatsAppMessageTemplate = async ({
     );
 
     if (sentMessageTemplate.status !== 200) {
-      throw new AppError("ERR_SENDING_WAPP_MSG");
+      throw new AppError("ERR_SENDING_WAPP_TEMPLATE");
     }
 
     const messageData = {
@@ -58,7 +58,7 @@ const SendWhatsAppMessageTemplate = async ({
     await ticket.update({ lastMessage: `*Template*: ${body}` });
     return await CreateMessageService({ messageData });
   } catch (err) {
-    throw new AppError("ERR_SENDING_WAPP_MSG");
+    throw new AppError("ERR_SENDING_WAPP_TEMPLATE");
   }
 };
 
