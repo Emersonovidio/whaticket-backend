@@ -13,7 +13,6 @@ interface MessageData {
   read?: boolean;
   mediaType?: string;
   mediaUrl?: string;
-  quotedMsgId?: number;
 }
 interface Request {
   messageData: MessageData;
