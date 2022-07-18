@@ -42,6 +42,14 @@ type WebhookNotification = {
                 };
               }
             ];
+            statuses?: [
+              {
+                id: string;
+                status: string;
+                timestamp: string;
+                recipient_id: string;
+              }
+            ];
           };
           field: string;
         }
@@ -65,6 +73,7 @@ interface MessageData {
 export const ReceiveEventService = async (
   body: WebhookNotification
 ): Promise<unknown> => {
+  console.log(body);
   console.log(body.entry[0].changes[0].value);
 
   const { from, type, text, button } =
