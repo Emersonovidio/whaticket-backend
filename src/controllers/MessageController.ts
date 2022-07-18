@@ -9,6 +9,7 @@ import SendWhatsAppMedia2 from "../services/WbotServices/SendWhatsAppMedia2";
 import SendWhatsAppMessage2 from "../services/WbotServices/SendWhatsAppMessage2";
 import ListMessagesService from "../services/MessageServices/ListMessagesService";
 import DeleteWhatsAppMessage from "../services/WbotServices/DeleteWhatsAppMessage";
+import SendWhatsAppMessageTemplate from "../services/WbotServices/SendWhatsAppMessageTemplate";
 
 type IndexQuery = {
   pageNumber: string;
@@ -50,6 +51,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
         await SendWhatsAppMedia2({ media, ticket });
       })
     );
+  } else if (body === "*Administrador:*iniciar_conversa") {
+    await SendWhatsAppMessageTemplate({ body, ticket, quotedMsg });
   } else {
     await SendWhatsAppMessage2({ body, ticket, quotedMsg });
   }
