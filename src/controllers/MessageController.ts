@@ -51,7 +51,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
         await SendWhatsAppMedia2({ media, ticket });
       })
     );
-  } else if (body.split("/")[1] && !body.split("/")[1]) {
+  } else if (body.split("/")[1] && !body.split("/")[2]) {
     await SendWhatsAppMessageTemplate({
       body: body.split("/")[1],
       ticket,
