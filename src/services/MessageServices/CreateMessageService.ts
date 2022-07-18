@@ -6,12 +6,14 @@ import Whatsapp from "../../models/Whatsapp";
 interface MessageData {
   id: string;
   ticketId: number;
+  ack?: number;
   body: string;
   contactId?: number;
   fromMe?: boolean;
   read?: boolean;
   mediaType?: string;
   mediaUrl?: string;
+  quotedMsgId?: number;
 }
 interface Request {
   messageData: MessageData;
@@ -29,7 +31,8 @@ const CreateMessageService = async ({
         model: Ticket,
         as: "ticket",
         include: [
-          "contact", "queue",
+          "contact",
+          "queue",
           {
             model: Whatsapp,
             as: "whatsapp",
