@@ -40,6 +40,10 @@ const SendWhatsAppMessageTemplate = async ({
       config
     );
 
+    if (sentMessageTemplate.status !== 200) {
+      throw new AppError("ERR_SENDING_WAPP_MSG");
+    }
+
     const messageData = {
       id: randomUUID(),
       ack: sentMessageTemplate.status === 200 ? 1 : 0,
