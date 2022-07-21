@@ -74,9 +74,6 @@ interface MessageData {
 export const ReceiveEventService = async (
   body: WebhookNotification
 ): Promise<unknown> => {
-  console.log(body);
-  console.log(body.entry[0].changes[0].value);
-
   const { from, type, text, button } =
     body.entry[0].changes[0].value.messages[0];
 
