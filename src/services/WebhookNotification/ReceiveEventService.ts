@@ -1,9 +1,10 @@
 import { randomUUID } from "crypto";
+import { Op } from "sequelize/types";
 import AppError from "../../errors/AppError";
 import Contact from "../../models/Contact";
 import Ticket from "../../models/Ticket";
 import CreateMessageService from "../MessageServices/CreateMessageService";
-import CreateTicketService from "../TicketServices/CreateTicketService";
+// import CreateTicketService from "../TicketServices/CreateTicketService";
 
 /* eslint-disable camelcase */
 interface WebhookNotification {
@@ -86,23 +87,23 @@ export const ReceiveEventService = async (
     throw new AppError("ERR_404_CONTACT_NOT_FOUND");
   }
 
-  let ticket: Ticket | null;
+  // let ticket: Ticket | null;
 
-  ticket = await Ticket.findOne({
-    where: { contactId: contact.id }
+  const ticket = await Ticket.findOne({
+    where: { contactId: contact.id, status: { [Op.or]: ["open", "pending"] } }
   });
 
   if (!ticket) {
     throw new AppError("ERR_404_TICKET_NOT_FOUND");
   }
 
-  if (ticket.status === "closed" || ticket.status !== "open") {
-    ticket = await CreateTicketService({
-      contactId: contact.id,
-      status: "peding",
-      userId: 1
-    });
-  }
+  // if (ticket.status === "closed" || ticket.status !== "open") {
+  //   ticket = await CreateTicketService({
+  //     contactId: contact.id,
+  //     status: "peding",
+  //     userId: 1
+  //   });
+  // }
 
   let messageData: MessageData;
   let ticketUpdate;
