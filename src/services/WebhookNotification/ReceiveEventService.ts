@@ -6,7 +6,7 @@ import CreateMessageService from "../MessageServices/CreateMessageService";
 import CreateTicketService from "../TicketServices/CreateTicketService";
 
 /* eslint-disable camelcase */
-type WebhookNotification = {
+interface WebhookNotification {
   object: string;
   entry: [
     {
@@ -57,7 +57,7 @@ type WebhookNotification = {
       ];
     }
   ];
-};
+}
 
 interface MessageData {
   id: string;
@@ -76,6 +76,8 @@ export const ReceiveEventService = async (
 ): Promise<unknown> => {
   const { from, type, text, button } =
     body.entry[0].changes[0].value.messages[0];
+
+  console.log(body);
 
   const contact = await Contact.findOne({
     where: { number: from }
