@@ -74,13 +74,12 @@ interface MessageData {
 export const ReceiveEventService = async (
   body: WebhookNotification
 ): Promise<unknown> => {
-  const { from, type, text, button } =
-    body.entry[0].changes[0].value.messages[0];
+  const messages = body.entry[0].changes[0].value.messages[0];
 
-  console.log(body);
+  console.log(messages);
 
   const contact = await Contact.findOne({
-    where: { number: from }
+    where: { number: messages.from }
   });
 
   if (!contact) {
@@ -108,19 +107,19 @@ export const ReceiveEventService = async (
   let messageData: MessageData;
   let ticketUpdate;
 
-  if (text) {
+  if (messages.text) {
     messageData = {
       id: randomUUID(),
       ack: 1,
       ticketId: ticket.id,
-      body: text.body,
+      body: messages.text.body,
       fromMe: false,
       read: true,
-      mediaType: type === "text" ? "chat" : type
+      mediaType: messages.type === "text" ? "chat" : messages.type
     };
 
     ticketUpdate = {
-      lastMessage: text.body,
+      lastMessage: messages.text.body,
       unreadMessages:
         ticket.status === "pending" || ticket.status === "closed"
           ? ticket.unreadMessages + 1
@@ -131,20 +130,20 @@ export const ReceiveEventService = async (
     return CreateMessageService({ messageData });
   }
 
-  if (button) {
+  if (messages.button) {
     messageData = {
       id: randomUUID(),
       ticketId: ticket.id,
       ack: 1,
-      body: button.text,
+      body: messages.button.text,
       contactId: contact.id,
       fromMe: false,
       read: true,
-      mediaType: type
+      mediaType: messages.type
     };
 
     ticketUpdate = {
-      lastMessage: button.text,
+      lastMessage: messages.button.text,
       unreadMessages:
         ticket.status === "pending" || ticket.status === "closed"
           ? ticket.unreadMessages + 1
