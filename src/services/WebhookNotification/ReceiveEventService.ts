@@ -96,7 +96,7 @@ export const ReceiveEventService = async (
     throw new AppError("ERR_404_TICKET_NOT_FOUND");
   }
 
-  if (ticket.status === "closed") {
+  if (ticket.status === "closed" || ticket.status !== "open") {
     ticket = await CreateTicketService({
       contactId: contact.id,
       status: "peding",
