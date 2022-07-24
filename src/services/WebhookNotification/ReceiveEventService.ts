@@ -83,15 +83,17 @@ export const ReceiveEventService = async (
     where: { number: messages.from }
   });
 
+  console.log(contact);
+
   if (!contact) {
     throw new AppError("ERR_404_CONTACT_NOT_FOUND");
   }
 
-  // let ticket: Ticket | null;
-
   const ticket = await Ticket.findOne({
     where: { contactId: contact.id, status: { [Op.or]: ["open", "pending"] } }
   });
+
+  console.log(ticket);
 
   if (!ticket) {
     throw new AppError("ERR_404_TICKET_NOT_FOUND");
