@@ -1,3 +1,4 @@
+import axios from "axios";
 import { randomUUID } from "crypto";
 import { Op } from "sequelize";
 import AppError from "../../errors/AppError";
@@ -42,6 +43,11 @@ interface WebhookNotification {
                   payload: string;
                   text: string;
                 };
+                image?: {
+                  mime_type: string;
+                  sha256: string;
+                  id: string;
+                };
               }
             ];
             statuses?: [
@@ -72,18 +78,25 @@ interface MessageData {
   mediaUrl?: string;
 }
 
+interface SendMediaMessageResponse {
+  messaging_product: string;
+  contacts: {
+    input: string;
+    wa_id: string;
+  };
+  messages: {
+    id: string;
+  };
+}
+
 export const ReceiveEventService = async (
   body: WebhookNotification
 ): Promise<unknown> => {
   const messages = body.entry[0].changes[0].value.messages[0];
 
-  console.log(messages);
-
   const contact = await Contact.findOne({
     where: { number: messages.from }
   });
-
-  console.log(contact);
 
   if (!contact) {
     throw new AppError("ERR_404_CONTACT_NOT_FOUND");
@@ -92,8 +105,6 @@ export const ReceiveEventService = async (
   const ticket = await Ticket.findOne({
     where: { contactId: contact.id, status: { [Op.or]: ["open", "pending"] } }
   });
-
-  console.log(ticket);
 
   if (!ticket) {
     throw new AppError("ERR_404_TICKET_NOT_FOUND");
@@ -154,6 +165,50 @@ export const ReceiveEventService = async (
     };
 
     await ticket.update({ ticketUpdate });
+    return CreateMessageService({ messageData });
+  }
+
+  if (messages.image) {
+    const sendMediaMessageResponse = await axios.post<SendMediaMessageResponse>(
+      `${process.env.WHATSAPP_API_URI}/messages`,
+      {
+        messaging_product: "whatsapp",
+        to: ticket.contact.number,
+        type: messages.type === "application" ? "document" : messages.type,
+        [messages.type === "application" ? "document" : messages.type]: {
+          id: messages.image.id
+        }
+      },
+      {
+        headers: {
+          Authorization: String(process.env.ACCESS_TOKEN_FACEBOOK)
+        }
+      }
+    );
+
+    messageData = {
+      id: randomUUID(),
+      body: "",
+      ack: sendMediaMessageResponse.status === 200 ? 1 : 0,
+      read: true,
+      mediaType:
+        messages.image.mime_type === "application"
+          ? "document"
+          : messages.image.mime_type,
+      mediaUrl: "",
+      ticketId: ticket.id,
+      fromMe: true
+    };
+
+    // ticketUpdate = {
+    //   lastMessage: messages..text,
+    //   unreadMessages:
+    //     ticket.status === "pending" || ticket.status === "closed"
+    //       ? ticket.unreadMessages + 1
+    //       : 0
+    // };
+
+    // await ticket.update({ ticketUpdate });
     return CreateMessageService({ messageData });
   }
 };
