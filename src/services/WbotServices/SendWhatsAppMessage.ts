@@ -13,7 +13,8 @@ interface Request {
 
 const SendWhatsAppMessage = async ({
   body,
-  ticket
+  ticket,
+  quotedMsg
 }: Request): Promise<Message> => {
   try {
     const sentMessage = await axios.post(
@@ -41,7 +42,7 @@ const SendWhatsAppMessage = async ({
       fromMe: true,
       read: true,
       mediaType: "chat",
-      quotedMsgId: null
+      quotedMsgId: quotedMsg ? quotedMsg.id : null
     };
 
     await ticket.update({ lastMessage: body });

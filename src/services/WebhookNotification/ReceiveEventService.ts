@@ -168,49 +168,10 @@ export const ReceiveEventService = async (
     return CreateMessageService({ messageData });
   }
 
-  if (messages.image) {
-    const sendMediaMessageResponse = await axios.post<SendMediaMessageResponse>(
-      `${process.env.WHATSAPP_API_URI}/messages`,
-      {
-        messaging_product: "whatsapp",
-        to: ticket.contact.number,
-        type: messages.type === "application" ? "document" : messages.type,
-        [messages.type === "application" ? "document" : messages.type]: {
-          id: messages.image.id
-        }
-      },
-      {
-        headers: {
-          Authorization: String(process.env.ACCESS_TOKEN_FACEBOOK)
-        }
-      }
-    );
-
-    messageData = {
-      id: randomUUID(),
-      body: "",
-      ack: sendMediaMessageResponse.status === 200 ? 1 : 0,
-      read: true,
-      mediaType:
-        messages.image.mime_type === "application"
-          ? "document"
-          : messages.image.mime_type,
-      mediaUrl: "",
-      ticketId: ticket.id,
-      fromMe: true
-    };
-
-    // ticketUpdate = {
-    //   lastMessage: messages..text,
-    //   unreadMessages:
-    //     ticket.status === "pending" || ticket.status === "closed"
-    //       ? ticket.unreadMessages + 1
-    //       : 0
-    // };
-
-    // await ticket.update({ ticketUpdate });
-    return CreateMessageService({ messageData });
-  }
+  // if (messages.image) {
+  //   const medias = messages.image as Express.Multer.File[];
+  //   // return CreateMessageService({ messageData });
+  // }
 };
 
 export default ReceiveEventService;
