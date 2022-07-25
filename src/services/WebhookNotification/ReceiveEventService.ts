@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { Op } from "sequelize/types";
+import { Op } from "sequelize";
 import AppError from "../../errors/AppError";
 import Contact from "../../models/Contact";
 import Ticket from "../../models/Ticket";
