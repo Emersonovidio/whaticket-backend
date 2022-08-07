@@ -5,7 +5,7 @@ import AppError from "../../errors/AppError";
 import Contact from "../../models/Contact";
 import Ticket from "../../models/Ticket";
 import CreateMessageService from "../MessageServices/CreateMessageService";
-// import CreateTicketService from "../TicketServices/CreateTicketService";
+import CreateTicketService from "../TicketServices/CreateTicketService";
 
 /* eslint-disable camelcase */
 interface WebhookNotification {
@@ -78,16 +78,16 @@ interface MessageData {
   mediaUrl?: string;
 }
 
-interface SendMediaMessageResponse {
-  messaging_product: string;
-  contacts: {
-    input: string;
-    wa_id: string;
-  };
-  messages: {
-    id: string;
-  };
-}
+// interface SendMediaMessageResponse {
+//   messaging_product: string;
+//   contacts: {
+//     input: string;
+//     wa_id: string;
+//   };
+//   messages: {
+//     id: string;
+//   };
+// }
 
 export const ReceiveEventService = async (
   body: WebhookNotification
@@ -102,21 +102,17 @@ export const ReceiveEventService = async (
     throw new AppError("ERR_404_CONTACT_NOT_FOUND");
   }
 
-  const ticket = await Ticket.findOne({
+  let ticket = await Ticket.findOne({
     where: { contactId: contact.id, status: { [Op.or]: ["open", "pending"] } }
   });
 
   if (!ticket) {
-    throw new AppError("ERR_404_TICKET_NOT_FOUND");
+    ticket = await CreateTicketService({
+      contactId: contact.id,
+      status: "peding",
+      userId: 1
+    });
   }
-
-  // if (ticket.status === "closed" || ticket.status !== "open") {
-  //   ticket = await CreateTicketService({
-  //     contactId: contact.id,
-  //     status: "peding",
-  //     userId: 1
-  //   });
-  // }
 
   let messageData: MessageData;
   let ticketUpdate;
