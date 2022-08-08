@@ -104,7 +104,7 @@ export const ReceiveEventService = async (
     throw new AppError("ERR_404_CONTACT_NOT_FOUND");
   }
 
-  let ticket = await Ticket.findOne({
+  let ticket = await Ticket.create({
     where: { contactId: contact.id, status: { [Op.or]: ["pending", "open"] } }
   });
 

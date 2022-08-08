@@ -28,9 +28,9 @@ export const update = async (
   const token: string = req.cookies.jrt;
   console.log(token);
 
-  if (!token) {
-    throw new AppError("ERR_SESSION_EXPIRED", 401);
-  }
+  // if (!token) {
+  //   throw new AppError("ERR_SESSION_EXPIRED", 401);
+  // }
 
   const { user, newToken, refreshToken } = await RefreshTokenService(
     res,
