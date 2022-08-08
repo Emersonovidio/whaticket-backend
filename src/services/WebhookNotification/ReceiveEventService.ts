@@ -103,7 +103,7 @@ export const ReceiveEventService = async (
   }
 
   let ticket = await Ticket.findOne({
-    where: { contactId: contact.id, status: { [Op.or]: ["open", "pending"] } }
+    where: { contactId: contact.id }
   });
 
   if (!ticket) {
