@@ -1,6 +1,6 @@
 import axios from "axios";
 import { randomUUID } from "crypto";
-import { Op } from "sequelize";
+import { Op, or } from "sequelize";
 import AppError from "../../errors/AppError";
 import Contact from "../../models/Contact";
 import Ticket from "../../models/Ticket";
@@ -94,6 +94,8 @@ export const ReceiveEventService = async (
 ): Promise<unknown> => {
   const messages = body.entry[0].changes[0].value.messages[0];
 
+  console.log(messages);
+
   const contact = await Contact.findOne({
     where: { number: messages.from }
   });
@@ -102,14 +104,16 @@ export const ReceiveEventService = async (
     throw new AppError("ERR_404_CONTACT_NOT_FOUND");
   }
 
-  let ticket = await Ticket.findOne({
-    where: { contactId: contact.id }
+  let ticket = await Ticket.create({
+    where: { contactId: contact.id, status: { [Op.or]: ["pending", "open"] } }
   });
+
+  console.log(ticket);
 
   if (!ticket) {
     ticket = await CreateTicketService({
       contactId: contact.id,
-      status: "peding",
+      status: "pending",
       userId: 1
     });
   }
