@@ -1,6 +1,6 @@
 import axios from "axios";
 import { randomUUID } from "crypto";
-import { Op, or } from "sequelize";
+import { Op, or, where } from "sequelize";
 import AppError from "../../errors/AppError";
 import Contact from "../../models/Contact";
 import Ticket from "../../models/Ticket";
@@ -133,6 +133,7 @@ export const ReceiveEventService = async (
     };
 
     ticketUpdate = {
+      id: ticket.id,
       lastMessage: messages.text.body,
       unreadMessages:
         ticket.status === "pending" || ticket.status === "closed"
@@ -157,6 +158,7 @@ export const ReceiveEventService = async (
     };
 
     ticketUpdate = {
+      id: ticket.id,
       lastMessage: messages.button.text,
       unreadMessages:
         ticket.status === "pending" || ticket.status === "closed"
@@ -167,11 +169,6 @@ export const ReceiveEventService = async (
     await ticket.update({ ticketUpdate });
     return CreateMessageService({ messageData });
   }
-
-  // if (messages.image) {
-  //   const medias = messages.image as Express.Multer.File[];
-  //   // return CreateMessageService({ messageData });
-  // }
 };
 
 export default ReceiveEventService;
