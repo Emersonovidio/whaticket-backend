@@ -141,7 +141,7 @@ export const ReceiveEventService = async (
           : 0
     };
 
-    await ticket.update({ ticketUpdate }, { where: { id: ticket.id } });
+    await ticket.update({ ticketUpdate }, { where: { _id: ticket.id } });
     return CreateMessageService({ messageData });
   }
 
@@ -165,7 +165,7 @@ export const ReceiveEventService = async (
           : 0
     };
 
-    await ticket.update({ ticketUpdate }, { where: { id: ticket.id } });
+    await ticket.update({ ticketUpdate }, { where: { _id: ticket.id } });
     return CreateMessageService({ messageData });
   }
 };
