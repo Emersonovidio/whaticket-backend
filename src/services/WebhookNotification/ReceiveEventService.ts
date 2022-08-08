@@ -121,7 +121,6 @@ export const ReceiveEventService = async (
   let messageData: MessageData;
   let ticketUpdate;
 
-  console.log(ticket.id);
   if (messages.text) {
     messageData = {
       id: randomUUID(),
@@ -168,7 +167,9 @@ export const ReceiveEventService = async (
           : 0
     };
 
-    await ticket.update({ ticketUpdate }, { where: { _id: ticket.id } });
+    await ticket.update(ticketUpdate, {
+      where: { id: ticket.id }
+    });
     return CreateMessageService({ messageData });
   }
 };
