@@ -141,7 +141,7 @@ export const ReceiveEventService = async (
           : 0
     };
 
-    await ticket.update({ ticketUpdate });
+    await ticket.update({ ticketUpdate }, { where: { id: ticket.id } });
     return CreateMessageService({ messageData });
   }
 
@@ -158,7 +158,6 @@ export const ReceiveEventService = async (
     };
 
     ticketUpdate = {
-      id: ticket.id,
       lastMessage: messages.button.text,
       unreadMessages:
         ticket.status === "pending" || ticket.status === "closed"
@@ -166,7 +165,7 @@ export const ReceiveEventService = async (
           : 0
     };
 
-    await ticket.update({ ticketUpdate });
+    await ticket.update({ ticketUpdate }, { where: { id: ticket.id } });
     return CreateMessageService({ messageData });
   }
 };
